@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Shieldora Admin</title>
+<link rel="icon" href="../assets/shield.png">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0e;--bg2:#14171c;--card:#1b1f26;--line:#2b313b;--text:#f2f4f7;--muted:#a9b0bb;--green:#1fae4b;--blue:#1c3fd6;--red:#e5484d;--amber:#e0a43a;--grad:linear-gradient(90deg,var(--green),var(--blue))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+[hidden]{display:none!important}
+.wrap{width:min(1280px,100% - 32px);margin-inline:auto}
+header{border-bottom:1px solid var(--line);background:var(--bg2)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+header img{height:40px}
+header b{font-weight:600;letter-spacing:.12em;font-size:.8rem;color:var(--muted);text-transform:uppercase;margin-left:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;border-radius:999px;border:1.5px solid transparent;font:600 .88rem Poppins;cursor:pointer;color:#fff;transition:.2s}
+.btn-primary{background:var(--grad)}.btn-primary:hover{filter:brightness(1.15)}
+.btn-ghost{background:transparent;border-color:#4a5360}.btn-ghost:hover{border-color:var(--green)}
+.btn-sm{padding:5px 12px;font-size:.78rem}
+.btn-danger{border-color:#6b2a2d;color:#ff8a8e;background:transparent}.btn-danger:hover{border-color:var(--red)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.tabs{display:flex;gap:6px;margin:28px 0 20px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;color:var(--muted);font:600 .95rem Poppins;padding:10px 18px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab.on{color:#fff;border-color:var(--green)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:24px}
+.card h2{font-size:1.1rem;margin-bottom:16px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:5px;font-weight:500}
+label small{color:#6c7480;font-weight:400}
+input,select{width:100%;background:#0d0f13;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:#fff;font:400 .92rem Poppins;outline:none}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(31,174,75,.18)}
+input[readonly]{color:var(--muted);background:#101216}
+.actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.tools{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.tools input{max-width:280px}.tools select{max-width:190px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:900px}
+th{text-align:left;font-weight:500;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;padding:12px 14px;background:#0f1216;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.act{display:flex;gap:6px}
+.empty{text-align:center;color:var(--muted);padding:28px}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.72rem;font-weight:600}
+.b-unassigned{background:rgba(169,176,187,.15);color:var(--muted)}
+.b-assigned{background:rgba(224,164,58,.15);color:var(--amber)}
+.b-activated{background:rgba(31,174,75,.16);color:var(--green)}
+.login{max-width:380px;margin:12vh auto;text-align:center}
+.login img{height:64px;margin:0 auto 18px}
+.login form{text-align:left}
+.err{color:#ff8a8e;font-size:.82rem;margin-top:10px;min-height:1.2em}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);padding:12px 20px;border-radius:12px;font-size:.88rem;z-index:9;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#toast.ok{border-color:var(--green)}#toast.bad{border-color:var(--red)}
+.hint{color:var(--muted);font-size:.8rem;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="wrap" hidden>
+  <div class="card login">
+    <img src="../assets/logo.png" alt="Shieldora">
+    <h2>Admin sign in</h2>
+    <form id="loginForm" style="margin-top:16px">
+      <label for="pw">Password</label>
+      <input id="pw" type="password" autocomplete="current-password" required>
+      <div class="err" id="loginErr"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" type="submit">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<div id="appView" hidden>
+  <header><div class="wrap">
+    <div style="display:flex;align-items:center"><img src="../assets/logo.png" alt="Shieldora"><b>Admin</b></div>
+    <button class="btn btn-ghost btn-sm" id="logout">Sign out</button>
+  </div></header>
+
+  <main class="wrap">
+    <div class="tabs">
+      <button class="tab on" data-tab="products">Products</button>
+      <button class="tab" data-tab="studios">Studios</button>
+    </div>
+
+    <!-- PRODUCTS -->
+    <section id="products">
+      <form class="card" id="pForm" novalidate>
+        <h2 id="pTitle">Add product</h2>
+        <div class="grid">
+          <div><label for="pId">Product ID</label><input id="pId" placeholder="A001" autocomplete="off" style="text-transform:uppercase"></div>
+          <div><label for="pRoll">Roll number <small>(internal)</small></label><input id="pRoll" autocomplete="off"></div>
+          <div><label for="pType">Product type</label><select id="pType"></select></div>
+          <div><label for="pWar">Warranty</label><input id="pWar" readonly></div>
+          <div><label for="pColor">Colour variant</label><select id="pColor"></select></div>
+          <div><label for="pStudio">Assigned studio <small>(optional)</small></label><select id="pStudio"></select></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit" id="pSave">Add product</button>
+          <button class="btn btn-ghost" type="button" id="pCancel" hidden>Cancel edit</button>
+        </div>
+        <p class="hint">Status is set automatically: no studio = Unassigned, studio chosen = Assigned to dealer. It becomes Activated when the dealer activates it on the website.</p>
+      </form>
+
+      <div class="tools">
+        <input id="pSearch" placeholder="Search product, roll, vehicle, studio">
+        <select id="pFilter">
+          <option value="">All statuses</option><option value="unassigned">Unassigned</option>
+          <option value="assigned">Assigned to dealer</option><option value="activated">Activated</option>
+        </select>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Product ID</th><th>Roll no.</th><th>Type</th><th>Warranty</th><th>Colour</th><th>Studio</th><th>Status</th><th>Activated on</th><th>Vehicle</th><th></th></tr></thead>
+        <tbody id="pBody"></tbody>
+      </table></div>
+    </section>
+
+    <!-- STUDIOS -->
+    <section id="studios" hidden>
+      <form class="card" id="sForm" novalidate>
+        <h2 id="sTitle">Add studio</h2>
+        <div class="grid">
+          <div><label for="sId">Studio ID</label><input id="sId" readonly value="Auto-generated"></div>
+          <div><label for="sName">Studio name</label><input id="sName" autocomplete="off"></div>
+          <div><label for="sMgr">Studio manager full name</label><input id="sMgr" autocomplete="off" placeholder="First Last"></div>
+          <div><label for="sPhone">Phone number</label><input id="sPhone" inputmode="numeric" maxlength="10" placeholder="10 digits" autocomplete="off"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit" id="sSave">Add studio</button>
+          <button class="btn btn-ghost" type="button" id="sCancel" hidden>Cancel edit</button>
+        </div>
+        <p class="hint">The studio phone number is what a dealer enters on the website to activate a warranty, so each studio needs a unique number.</p>
+      </form>
+      <div class="tw"><table style="min-width:700px">
+        <thead><tr><th>Studio ID</th><th>Name</th><th>Manager</th><th>Phone</th><th>Products</th><th></th></tr></thead>
+        <tbody id="sBody"></tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+<div id="toast" hidden></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let TYPES = {}, products = [], studios = [], editingP = null, editingS = null, tt;
+
+async function api(path, opts = {}) {
+  const r = await fetch('/api/admin/' + path, { credentials: 'same-origin', ...opts,
+    headers: { 'Content-Type': 'application/json' }, body: opts.body && JSON.stringify(opts.body) });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== 'session') { show(false); throw new Error('Session expired. Please sign in again.'); }
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
+}
+function toast(msg, ok = true) {
+  const t = $('#toast'); t.textContent = msg; t.className = ok ? 'ok' : 'bad'; t.hidden = false;
+  clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3500);
+}
+const run = fn => async (...a) => { try { await fn(...a); } catch (e) { toast(e.message, false); } };
+const fmt = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+
+function show(isAdmin) {
+  $('#loginView').hidden = isAdmin; $('#appView').hidden = !isAdmin;
+  if (isAdmin) load(); else $('#pw').focus();
+}
+
+/* ---------- auth ---------- */
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); $('#loginErr').textContent = '';
+  try { await api('session', { method: 'POST', body: { password: $('#pw').value } }); $('#pw').value = ''; show(true); }
+  catch (err) { $('#loginErr').textContent = err.message; }
+});
+$('#logout').onclick = run(async () => { await api('session', { method: 'DELETE' }); show(false); });
+
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === b));
+  $('#products').hidden = b.dataset.tab !== 'products'; $('#studios').hidden = b.dataset.tab !== 'studios';
+});
+
+/* ---------- data ---------- */
+const load = run(async () => {
+  const [s, p] = await Promise.all([api('studios'), api('products')]);
+  studios = s.studios; products = p.products; TYPES = p.types;
+  fillTypes(); renderStudios(); renderProducts();
+});
+
+/* ---------- products ---------- */
+function fillTypes(keep) {
+  const cur = keep ?? $('#pType').value;
+  $('#pType').innerHTML = '<option value="">Select type</option>' + Object.keys(TYPES).map(t => `<option>${esc(t)}</option>`).join('');
+  $('#pType').value = cur || '';
+  syncType();
+  const sc = $('#pStudio').value;
+  $('#pStudio').innerHTML = '<option value="">Not assigned</option>' + studios.map(s => `<option value="${esc(s.studio_id)}">${esc(s.studio_id)} - ${esc(s.name)}</option>`).join('');
+  $('#pStudio').value = sc;
+}
+function syncType(color) {
+  const t = TYPES[$('#pType').value];
+  $('#pWar').value = t ? t.warranty + ' years' : '';
+  $('#pColor').innerHTML = t ? t.colors.map(c => `<option>${esc(c)}</option>`).join('') : '<option value="">Select type first</option>';
+  if (color) $('#pColor').value = color;
+}
+$('#pType').onchange = () => syncType();
+
+function resetP() {
+  editingP = null; $('#pForm').reset(); $('#pId').readOnly = false;
+  $('#pTitle').textContent = 'Add product'; $('#pSave').textContent = 'Add product'; $('#pCancel').hidden = true;
+  syncType();
+}
+$('#pCancel').onclick = resetP;
+
+$('#pForm').addEventListener('submit', run(async e => {
+  e.preventDefault();
+  const body = { productId: $('#pId').value, rollNumber: $('#pRoll').value, productType: $('#pType').value,
+    colorVariant: $('#pColor').value, studioId: $('#pStudio').value };
+  if (editingP) await api('products?id=' + encodeURIComponent(editingP), { method: 'PUT', body });
+  else await api('products', { method: 'POST', body });
+  toast(editingP ? 'Product updated' : 'Product added'); resetP(); await load();
+}));
+
+function renderProducts() {
+  const q = $('#pSearch').value.trim().toLowerCase(), f = $('#pFilter').value;
+  const rows = products.filter(p => (!f || p.status === f) &&
+    (!q || [p.product_id, p.roll_number, p.vehicle_reg, p.studio_id, p.studio_name, p.product_type].join(' ').toLowerCase().includes(q)));
+  $('#pBody').innerHTML = rows.length ? rows.map(p => `<tr>
+    <td><b>${esc(p.product_id)}</b></td><td>${esc(p.roll_number)}</td><td>${esc(p.product_type)}</td><td>${p.warranty_years} yrs</td>
+    <td>${esc(p.color_variant)}</td><td>${p.studio_id ? esc(p.studio_id + ' - ' + (p.studio_name || '')) : '-'}</td>
+    <td><span class="badge b-${esc(p.status)}">${{ unassigned: 'Unassigned', assigned: 'Assigned to dealer', activated: 'Activated' }[p.status]}</span></td>
+    <td>${fmt(p.activation_date)}</td><td>${esc(p.vehicle_reg || '-')}</td>
+    <td class="act"><button class="btn btn-ghost btn-sm" data-edit="${esc(p.product_id)}" ${p.status === 'activated' ? 'disabled' : ''}>Edit</button>
+    <button class="btn btn-danger btn-sm" data-del="${esc(p.product_id)}" ${p.status === 'activated' ? 'disabled' : ''}>Delete</button></td></tr>`).join('')
+    : '<tr><td class="empty" colspan="10">No products found</td></tr>';
+}
+$('#pSearch').oninput = renderProducts; $('#pFilter').onchange = renderProducts;
+$('#pBody').addEventListener('click', run(async e => {
+  const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+  if (ed) {
+    const p = products.find(x => x.product_id === ed.dataset.edit); editingP = p.product_id;
+    $('#pId').value = p.product_id; $('#pId').readOnly = true; $('#pRoll').value = p.roll_number;
+    $('#pType').value = p.product_type; syncType(p.color_variant); $('#pStudio').value = p.studio_id || '';
+    $('#pTitle').textContent = 'Edit product ' + p.product_id; $('#pSave').textContent = 'Save changes'; $('#pCancel').hidden = false;
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  if (del && confirm('Delete product ' + del.dataset.del + '? This cannot be undone.')) {
+    await api('products?id=' + encodeURIComponent(del.dataset.del), { method: 'DELETE' }); toast('Product deleted'); await load();
+  }
+}));
+
+/* ---------- studios ---------- */
+function resetS() {
+  editingS = null; $('#sForm').reset(); $('#sId').value = 'Auto-generated';
+  $('#sTitle').textContent = 'Add studio'; $('#sSave').textContent = 'Add studio'; $('#sCancel').hidden = true;
+}
+$('#sCancel').onclick = resetS;
+$('#sPhone').oninput = e => e.target.value = e.target.value.replace(/\D/g, '');
+$('#sForm').addEventListener('submit', run(async e => {
+  e.preventDefault();
+  const body = { name: $('#sName').value, managerName: $('#sMgr').value, phone: $('#sPhone').value };
+  if (editingS) await api('studios?id=' + encodeURIComponent(editingS), { method: 'PUT', body });
+  else { const r = await api('studios', { method: 'POST', body }); toast('Studio added as ' + r.studioId); resetS(); return load(); }
+  toast('Studio updated'); resetS(); await load();
+}));
+function renderStudios() {
+  $('#sBody').innerHTML = studios.length ? studios.map(s => `<tr>
+    <td><b>${esc(s.studio_id)}</b></td><td>${esc(s.name)}</td><td>${esc(s.manager_name)}</td><td>${esc(s.phone)}</td><td>${s.product_count}</td>
+    <td class="act"><button class="btn btn-ghost btn-sm" data-edit="${esc(s.studio_id)}">Edit</button>
+    <button class="btn btn-danger btn-sm" data-del="${esc(s.studio_id)}">Delete</button></td></tr>`).join('')
+    : '<tr><td class="empty" colspan="6">No studios yet</td></tr>';
+}
+$('#sBody').addEventListener('click', run(async e => {
+  const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+  if (ed) {
+    const s = studios.find(x => x.studio_id === ed.dataset.edit); editingS = s.studio_id;
+    $('#sId').value = s.studio_id; $('#sName').value = s.name; $('#sMgr').value = s.manager_name; $('#sPhone').value = s.phone;
+    $('#sTitle').textContent = 'Edit studio ' + s.studio_id; $('#sSave').textContent = 'Save changes'; $('#sCancel').hidden = false;
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  if (del && confirm('Delete studio ' + del.dataset.del + '?')) {
+    await api('studios?id=' + encodeURIComponent(del.dataset.del), { method: 'DELETE' }); toast('Studio deleted'); await load();
+  }
+}));
+
+api('session').then(d => show(d.admin)).catch(() => show(false));
+</script>
+</body>
+</html>
